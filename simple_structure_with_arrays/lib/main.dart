@@ -1,67 +1,100 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Future<Test>? test;
+
+  @override
+  void initState() {
+    super.initState();
+    test = getApi();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Container(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FutureBuilder(
+                  future: test,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Container(
+                        width: 300.0,
+                        height: 300.0,
+                        child: ListView(
+                          children: [
+                            Text(snapshot.data!.names![0]),
+                            Text(snapshot.data!.names![1]),
+                            Text(snapshot.data!.names![2]),
+                            Text(snapshot.data!.names![3]),
+                            Text(snapshot.data!.names![4]),
+                            Text(snapshot.data!.names![5]),
+                          ],
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('에러');
+                    } else {
+                      return Text('실패');
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 class Test {
-  List<Posts>? posts;
+  List<String>? names;
 
-  Test({this.posts});
+  Test({this.names});
 
   Test.fromJson(Map<String, dynamic> json) {
-    if (json['posts'] != null) {
-      posts = <Posts>[];
-      json['posts'].forEach((v) {
-        posts!.add(new Posts.fromJson(v));
-      });
-    }
+    names = json['names'].cast<String>();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.posts != null) {
-      data['posts'] = this.posts!.map((v) => v.toJson()).toList();
-    }
+    data['names'] = this.names;
     return data;
   }
 }
 
-class Posts {
-  int? id;
-  String? title;
-  String? location;
-  String? image;
-  String? description;
-  String? schedule;
-  double? rating;
+Future<Test> getApi() async {
+  final response = await http.get(
+      Uri.parse('https://my-json-server.typicode.com/jon-sparks/jsontest/db'));
+  print(response.body);
 
-  Posts(
-      {this.id,
-        this.title,
-        this.location,
-        this.image,
-        this.description,
-        this.schedule,
-        this.rating});
+  ///가공 안된 json 데이터
+  final jsonResponse = json.decode(response.body);
+  Test test = Test.fromJson(jsonResponse);
 
-  Posts.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    title = json['title'];
-    location = json['location'];
-    image = json['image'];
-    description = json['description'];
-    schedule = json['schedule'];
-    rating = json['rating'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['location'] = this.location;
-    data['image'] = this.image;
-    data['description'] = this.description;
-    data['schedule'] = this.schedule;
-    data['rating'] = this.rating;
-    return data;
+  ///가공된 json 데이터
+  print(test.names);
+  if (response.statusCode == 200) {
+    return Test.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('실패');
   }
 }
