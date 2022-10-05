@@ -1,5 +1,6 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class Test {
   List<Users>? users;
@@ -53,5 +54,64 @@ class Users {
     data['password'] = this.password;
     data['age'] = this.age;
     return data;
+  }
+}
+
+Future<Test> getApi() async {
+  final response = await http.get(Uri.parse(
+      'https://my-json-server.typicode.com/jlgalarza3/1.2-pet-project/db'));
+  print(response.body);
+  if (response.statusCode == 200){
+    return Test.fromJson(jsonDecode(response.body));
+  } else {
+    throw Exception('예외 처리');
+  }
+}
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Future<Test>? test;
+
+  @override
+  void initState(){
+    super.initState();
+    test = getApi();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Container(
+           child: Center(
+             child: Column(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: [
+                 FutureBuilder(
+                   future: test,
+                   builder: (context, snapshot){
+                     if (snapshot.hasData){
+                       return Text(snapshot.data!.users![0].email.toString());
+                     } else if (snapshot.hasError){
+                       return Text('에러');
+                     } else {
+                       return Text('실패');
+                     }
+                   },
+                 ),
+               ],
+             ),
+           ),
+        ),
+      ),
+    );
   }
 }
