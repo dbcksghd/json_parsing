@@ -2,17 +2,46 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+class Test {
+  Slide? slide;
+  Profile? profile;
+
+  Test({this.slide, this.profile});
+
+  Test.fromJson(Map<String, dynamic> json) {
+    slide = json['slide'] != null ? new Slide.fromJson(json['slide']) : null;
+    profile =
+    json['profile'] != null ? new Profile.fromJson(json['profile']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    if (this.slide != null) {
+      data['slide'] = this.slide!.toJson();
+    }
+    if (this.profile != null) {
+      data['profile'] = this.profile!.toJson();
+    }
+    return data;
+  }
+}
+
 class Slide {
   String? name;
   int? currentstatus;
 
   Slide({this.name, this.currentstatus});
 
-  factory Slide.fromJson(Map<String, dynamic> json) {
-    return Slide(
-      name: json['name'],
-      currentstatus: json['currentstatus'],
-    );
+  Slide.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    currentstatus = json['currentstatus'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = this.name;
+    data['currentstatus'] = this.currentstatus;
+    return data;
   }
 }
 
@@ -21,24 +50,14 @@ class Profile {
 
   Profile({this.name});
 
-  factory Profile.fromJson(Map<String, dynamic> json) {
-    return Profile(
-      name: json["name"],
-    );
+  Profile.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
   }
-}
 
-class Test {
-  Slide? slide;
-  Profile? profile;
-
-  Test({this.slide, this.profile});
-
-  factory Test.fromJson(Map<String, dynamic> json) {
-    return Test(
-      slide: json['slide'],
-      profile: json['profile'],
-    );
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['name'] = this.name;
+    return data;
   }
 }
 
@@ -49,7 +68,7 @@ Future<Test> getApi() async {
   if (response.statusCode == 200){
     return Test.fromJson(jsonDecode(response.body));
   } else {
-    throw Exception('실패');
+    throw Exception('예외처리');
   }
 }
 
