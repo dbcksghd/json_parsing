@@ -1,29 +1,36 @@
-class Model {
-  Model({
-    this.id,
-    this.state,
-    this.deviceType,
-    this.alive,
-  });
+class OsjList {
+  final List<Osj>? tests;
 
-  Model.fromJson(dynamic json) {
-    id = json['id'];
-    state = json['state'];
-    deviceType = json['device_type'];
-    alive = json['alive'];
+  OsjList({this.tests});
+
+  factory OsjList.fromJson(List<dynamic> json) {
+    List<Osj> tests = <Osj>[];
+    tests = json.map((i) => Osj.fromJson(i)).toList();
+
+    return OsjList(
+      tests: tests,
+    );
   }
+}
 
-  int? id;
-  int? state;
-  String? deviceType;
-  int? alive;
+class Osj {
+  final int id;
+  final int state;
+  final String deviceType;
+  final int alive;
 
-  Map<String, dynamic> toJson() {
-    final map = <String, dynamic>{};
-    map['id'] = id;
-    map['state'] = state;
-    map['device_type'] = deviceType;
-    map['alive'] = alive;
-    return map;
+  Osj(
+      {required this.id,
+      required this.state,
+      required this.deviceType,
+      required this.alive});
+
+  factory Osj.fromJson(Map<String, dynamic> json) {
+    return Osj(
+      id: json['id'],
+      state: json['state'],
+      deviceType: json['device_type'],
+      alive: json['alive'],
+    );
   }
 }
